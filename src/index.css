@@ -1,0 +1,283 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@500;600&display=swap');
+@import "tailwindcss";
+
+.font-anton {
+  font-family: 'Anton', sans-serif;
+}
+
+.font-montserrat {
+  font-family: 'Montserrat', sans-serif;
+}
+
+.brand-theme > .tokka-loading-screen {
+  --tokka-blue: #06486a;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  height: 100%;
+  overflow: hidden;
+  place-items: center;
+  padding: 24px;
+  background: var(--tokka-blue);
+  color: #fff;
+  text-align: center;
+}
+
+.tokka-loading-glass {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, rgb(193 234 245 / 20%), transparent 30%, rgb(0 24 46 / 24%) 54%, transparent 75%, rgb(193 234 245 / 16%)),
+    var(--tokka-blue);
+}
+
+.tokka-loading-glass::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: linear-gradient(180deg, rgb(218 245 255 / 9%), transparent 35%, rgb(0 23 39 / 10%) 50%, transparent 65%, rgb(218 245 255 / 9%));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.tokka-loading-reflection {
+  position: absolute;
+  inset: -50%;
+  background: linear-gradient(115deg,
+    transparent 20%,
+    rgb(0 21 39 / 20%) 30%,
+    rgb(218 245 255 / 5%) 36%,
+    rgb(218 245 255 / 30%) 42%,
+    rgb(218 245 255 / 7%) 47%,
+    transparent 52%,
+    rgb(0 21 39 / 16%) 58%,
+    rgb(218 245 255 / 22%) 64%,
+    transparent 72%);
+  animation: tokka-glass-reflection 6s ease-in-out infinite alternate;
+}
+
+.tokka-loading-content {
+  display: grid;
+  width: min(100%, 320px);
+  justify-items: center;
+  gap: 28px;
+}
+
+.tokka-loading-logo {
+  display: block;
+  width: 112px;
+  height: 112px;
+  object-fit: cover;
+  border-radius: 50%;
+  background: var(--tokka-blue);
+}
+
+.tokka-loading-copy h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.35;
+}
+
+.tokka-loading-copy p {
+  margin: 10px 0 0;
+  color: #c2dce8;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.tokka-loading-progress {
+  display: block;
+  width: 156px;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 15%);
+}
+
+.tokka-loading-progress-fill {
+  display: block;
+  width: 45%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #4a9ebe, #d5f6ff, #78cbe2);
+  box-shadow: 0 0 12px rgb(153 231 245 / 50%);
+  animation: tokka-progress-slide 2s ease-in-out infinite;
+}
+
+.tokka-loading-retry {
+  background: #fff;
+  color: var(--tokka-blue);
+}
+
+.tokka-loading-retry:focus-visible {
+  outline: 2px solid #99e7f5;
+  outline-offset: 4px;
+}
+
+.tokka-loading-screen--failed .tokka-loading-glass * {
+  animation: none;
+}
+
+@keyframes tokka-progress-slide {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(330%); }
+}
+
+@keyframes tokka-glass-reflection {
+  from { transform: translateX(-18%); }
+  to { transform: translateX(18%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tokka-loading-screen *,
+  .tokka-loading-screen *::before,
+  .tokka-loading-screen *::after {
+    animation: none;
+  }
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+/* Reaplica automaticamente a identidade extraída da logo nos componentes legados. */
+.app-main {
+  min-height: var(--app-viewport-height, 100vh);
+  min-height: var(--app-viewport-height, 100dvh);
+  overflow-x: hidden;
+}
+
+.app-shell {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  width: 100dvw;
+  height: var(--app-viewport-height, 100vh);
+  height: var(--app-viewport-height, 100dvh);
+  max-width: none;
+}
+
+@media (min-width: 768px) and (hover: hover) and (pointer: fine) {
+  .app-main {
+    display: grid;
+    min-height: var(--app-viewport-height, 100vh);
+    min-height: var(--app-viewport-height, 100dvh);
+    place-items: center;
+    padding: 2rem 1.5rem;
+  }
+
+  .app-shell {
+    position: static;
+    width: min(100%, 430px);
+    max-width: 430px;
+    height: min(932px, calc(var(--app-viewport-height, 100vh) - 4rem));
+    height: min(932px, calc(var(--app-viewport-height, 100dvh) - 4rem));
+    min-height: min(932px, calc(var(--app-viewport-height, 100vh) - 4rem));
+    min-height: min(932px, calc(var(--app-viewport-height, 100dvh) - 4rem));
+    margin-inline: auto;
+    border-radius: 28px;
+    box-shadow: 0 25px 50px -12px rgb(203 213 225 / 0.8);
+  }
+}
+
+.brand-theme > section {
+  background-color: #ffffff;
+}
+
+.brand-theme [class~="text-[#4b160e]"] {
+  color: var(--brand-primary) !important;
+}
+
+.brand-theme [class~="text-[#43160f]"],
+.brand-theme [class~="text-[#4b2a22]"],
+.brand-theme [class~="text-[#4b231b]"],
+.brand-theme [class~="text-[#5a2a22]"],
+.brand-theme [class~="text-[#5e332a]"],
+.brand-theme [class~="text-[#5f3730]"],
+.brand-theme [class~="text-[#5f352c]"],
+.brand-theme [class~="text-[#6b3025]"],
+.brand-theme [class~="text-[#6b433a]"],
+.brand-theme [class~="text-[#6f4a41]"],
+.brand-theme [class~="text-[#79574f]"],
+.brand-theme [class~="text-[#7b5148]"],
+.brand-theme [class~="text-[#7d5148]"],
+.brand-theme [class~="text-[#7d6259]"],
+.brand-theme [class~="text-[#8b6d63]"],
+.brand-theme [class~="text-[#8b6d66]"],
+.brand-theme [class~="text-[#8c6056]"],
+.brand-theme [class~="text-[#8d5a4e]"],
+.brand-theme [class~="text-[#8f6b62]"],
+.brand-theme [class~="text-[#8f6f64]"],
+.brand-theme [class~="text-[#8f746d]"],
+.brand-theme [class~="text-[#8f7d77]"],
+.brand-theme [class~="text-[#9a7d76]"],
+.brand-theme [class~="text-[#9b817a]"],
+.brand-theme [class~="text-[#9b837a]"],
+.brand-theme [class~="text-[#9d817a]"],
+.brand-theme [class~="text-[#a98272]"] {
+  color: var(--brand-primary) !important;
+}
+
+.brand-theme [class~="bg-[#4b160e]"],
+.brand-theme [class~="bg-[#43160f]"],
+.brand-theme [class~="bg-[#45150d]"],
+.brand-theme [class~="bg-[#46160f]"],
+.brand-theme [class~="bg-[#4a160f]"] {
+  background-color: var(--brand-primary) !important;
+}
+
+.brand-theme [class~="border-[#4b160e]"],
+.brand-theme [class~="border-[#43160f]"],
+.brand-theme [class~="border-[#4a160f]"],
+.brand-theme [class~="border-[#8d5a4e]"] {
+  border-color: var(--brand-primary) !important;
+}
+
+.brand-theme .brand-photo-frame {
+  border: 2px solid var(--brand-primary);
+}
+
+.brand-theme .brand-logo-frame {
+  border: 3px solid var(--brand-primary);
+}
+
+.admin-promo-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.admin-promo-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.admin-circular-crop .cropper-view-box,
+.admin-circular-crop .cropper-face {
+  border-radius: 50%;
+}
+
+.admin-circular-crop .cropper-view-box {
+  outline: 2px solid rgb(255 255 255 / 90%);
+  outline-color: rgb(255 255 255 / 90%);
+  box-shadow: 0 0 0 9999px rgb(0 0 0 / 45%);
+}
+
+.admin-circular-crop .cropper-line,
+.admin-circular-crop .cropper-point {
+  display: none;
+}
+
+.brand-theme [class~="ring-[#4b160e]"] {
+  --tw-ring-color: var(--brand-primary) !important;
+}

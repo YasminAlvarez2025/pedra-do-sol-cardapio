@@ -1,0 +1,48 @@
+{
+  "name": "food99like-cardapio",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "lint": "eslint .",
+    "test:menu": "node --experimental-vm-modules --test tests/menuPersistence.test.mjs",
+    "test:production": "npm run build && playwright test --config tests/production.playwright.config.mjs",
+    "firebase": "firebase",
+    "firebase:login": "firebase login",
+    "firebase:logout": "firebase logout",
+    "firebase:projects": "firebase projects:list",
+    "firebase:emulators": "firebase emulators:start --project demo-food99like-cardapio --only auth,firestore,storage",
+    "firebase:create-admin": "node scripts/create-default-admin.mjs",
+    "firebase:create-restaurant": "node scripts/create-restaurant.mjs",
+    "firebase:deploy:firestore-rules": "firebase deploy --only firestore:rules",
+    "firebase:deploy:storage-rules": "firebase deploy --only storage",
+    "firebase:deploy:rules": "firebase deploy --only firestore:rules,storage",
+    "firebase:deploy:hosting": "npm run build && firebase deploy --only hosting",
+    "firebase:deploy": "npm run build && firebase deploy"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "latest",
+    "@vitejs/plugin-react": "latest",
+    "cropperjs": "^1.6.2",
+    "firebase": "^12.17.1",
+    "lucide-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "@eslint/js": "latest",
+    "@playwright/test": "^1.64.0",
+    "eslint": "latest",
+    "eslint-plugin-react-hooks": "latest",
+    "eslint-plugin-react-refresh": "latest",
+    "firebase-tools": "^15.27.0",
+    "globals": "latest"
+  }
+}
