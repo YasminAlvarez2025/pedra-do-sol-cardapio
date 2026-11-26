@@ -19,9 +19,7 @@ import {
   FlipVertical2,
   GripVertical,
   Heart,
-  LayoutGrid,
   Leaf,
-  List,
   LockKeyhole,
   LogOut,
   Mail,
@@ -48,6 +46,8 @@ import {
 import cocoBackground from './assets/images/cocobambu_fundo.png'
 import promoShrimp from './assets/images/slide_0.png'
 import promoScampi from './assets/images/slide_2.png'
+import launchPromoPetitGateau from './assets/images/promos/promo-petit-gateau.jpg'
+import launchPromoFileDaCasa from './assets/images/promos/promo-file-da-casa.jpg'
 import categoriaBebidas from './assets/cards/hd/img bebidas@3x.jpg'
 import categoriaCarnes from './assets/cards/hd/img carne@3x.jpg'
 import categoriaEntradas from './assets/cards/hd/img entradas@3x.jpg'
@@ -61,6 +61,14 @@ import pratoCamaraoCocoBrasil from './assets/images/crops/prato-camarao-coco-bra
 import pratoIscaDePeixe from './assets/images/crops/prato-isca-de-peixe.png'
 import slideVezzBanner from './assets/images/crops/slide-vezz-banner-transparent.png'
 import cocoLogo from './assets/images/hd/logo-coco-bambu@4x.png'
+import pedraDoSolLogo from './assets/images/pedra-do-sol/logo-pedra-do-sol.jpg'
+import pedraDoSolCover from './assets/images/pedra-do-sol/capa-pedra-do-sol.jpg'
+import bannerVinhosPremium from './assets/images/pedra-do-sol/banner-vinhos-premium.jpg'
+import bannerCombinadoOriental from './assets/images/pedra-do-sol/banner-combinado-oriental.jpg'
+import bannerSalmaoGrelhado from './assets/images/pedra-do-sol/banner-salmao-grelhado.jpg'
+import categoriaEntradasPedraDoSol from './assets/images/pedra-do-sol/categoria-entradas-pedra-do-sol.jpg'
+import categoriaSaladasPedraDoSol from './assets/images/pedra-do-sol/categoria-saladas-pedra-do-sol.jpg'
+import categoriaFrutosDoMarPedraDoSol from './assets/images/pedra-do-sol/categoria-frutos-do-mar-pedra-do-sol.jpg'
 import tokkaLogo from './assets/TOKKA-LOGO.jpg'
 import iconBebidas from './assets/icons/icon bebidas.png'
 import iconCarnes from './assets/icons/icon carne.png'
@@ -91,10 +99,12 @@ import {
 import { persistAnalyticsEvent, persistOrder } from './lib/firebaseEvents'
 import { readCachedMenuState, resolveRestaurantId, saveMenuState, watchMenuState } from './lib/menuPersistence'
 
+// Entradas, Saladas e Frutos do Mar usam fotos próprias da categoria; as fotos
+// antigas (categoriaSaladas, categoriaFrutosDoMar) seguem como foto de alguns pratos.
 const categories = [
-  { id: 'entradas', label: 'Entradas', shortLabel: 'Entradas', iconImage: iconEntradas, image: categoriaEntradas },
-  { id: 'saladas', label: 'Saladas', shortLabel: 'Saladas', iconImage: iconSaladas, image: categoriaSaladas },
-  { id: 'frutos-do-mar', label: 'Frutos do Mar', shortLabel: 'Frutos do Mar', iconImage: iconFrutosDoMar, image: categoriaFrutosDoMar },
+  { id: 'entradas', label: 'Entradas', shortLabel: 'Entradas', iconImage: iconEntradas, image: categoriaEntradasPedraDoSol },
+  { id: 'saladas', label: 'Saladas', shortLabel: 'Saladas', iconImage: iconSaladas, image: categoriaSaladasPedraDoSol },
+  { id: 'frutos-do-mar', label: 'Frutos do Mar', shortLabel: 'Frutos do Mar', iconImage: iconFrutosDoMar, image: categoriaFrutosDoMarPedraDoSol },
   { id: 'carnes', label: 'Carnes', shortLabel: 'Carnes', iconImage: iconCarnes, image: categoriaCarnes },
   { id: 'frangos', label: 'Frangos', shortLabel: 'Frangos', iconImage: iconFrangos, image: categoriaFrangos },
   { id: 'veganos', label: 'Veganos', shortLabel: 'Veganos', iconImage: iconVeganos, image: categoriaVeganos },
@@ -103,9 +113,9 @@ const categories = [
 ]
 
 const fallbackImages = {
-  entradas: categoriaEntradas,
-  saladas: categoriaSaladas,
-  'frutos-do-mar': categoriaFrutosDoMar,
+  entradas: categoriaEntradasPedraDoSol,
+  saladas: categoriaSaladasPedraDoSol,
+  'frutos-do-mar': categoriaFrutosDoMarPedraDoSol,
   carnes: categoriaCarnes,
   frangos: categoriaFrangos,
   veganos: categoriaVeganos,
@@ -116,14 +126,15 @@ const fallbackImages = {
 const tableOptions = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
 
 const restaurantId = 'tokka-foods'
-const restaurantName = 'COCO BAMBU'
+const restaurantName = 'PEDRA DO SOL'
 const pixCardPaymentFeePercent = 3.99
 const defaultRestaurantProfile = {
-  name: 'COCO BAMBU',
+  name: 'PEDRA DO SOL',
   location: 'Derby, Recife - PE',
+  // O slug fica igual: ele está nos links já gerados (NFC/QR) e nos dados salvos.
   slug: 'coco-bambu',
-  logo: cocoLogo,
-  cover: cocoBackground,
+  logo: pedraDoSolLogo,
+  cover: pedraDoSolCover,
   theme: {
     primary: '#4b160e',
     accent: '#d8ad61',
@@ -140,57 +151,71 @@ const partnerLinks = {
   whatsapp: 'https://wa.me/5581999999999',
 }
 const protectedPromoSlideId = 'vezz-accessibility'
-const promoCardAspectRatio = 316 / 86
+// Proporção do card de promoção da home (mesma das artes, ex.: slide_0 com 316 × 118 px).
+const promoCardAspectRatio = 316 / 118
 
+// Imagens exibidas em tela cheia ao abrir o link do cardápio.
+// Para adicionar outra, basta incluir um item aqui: os pontinhos acompanham a quantidade.
+const launchPromoSlides = [
+  {
+    id: 'petit-gateau',
+    image: launchPromoPetitGateau,
+    alt: 'Petit Gateau: bolo quente de chocolate com sorvete de creme e calda especial. De R$ 54,90 por R$ 44,90.',
+  },
+  {
+    id: 'file-da-casa',
+    image: launchPromoFileDaCasa,
+    alt: 'Filé da Casa: filé mignon grelhado com purê trufado e legumes selecionados. De R$ 129,90 por R$ 109,90.',
+  },
+]
+
+// Banners do carrossel da home (artes em 1264 × 472 px, proporção do card).
+// Esses pratos ainda não existem no cardápio, então não há productId:
+// o banner abre a página da promoção, sem o botão "Ver prato".
 const promoSlides = [
   {
-    id: 'coco-brasil-promo',
-    image: promoShrimp,
-    title: 'Camarão recheado com promoção',
-    subtitle: 'Camarão Praia de Olinda para 2 pessoas por R$ 99,90.',
+    id: 'vinhos-premium',
+    image: bannerVinhosPremium,
+    title: 'Vinhos Premium',
+    subtitle: 'Seleção especial de rótulos para harmonizar com os melhores pratos da casa. A partir de R$ 89,90.',
     targetType: 'promotion',
-    productId: 'praia-de-olinda',
     includes: [
-      'Camarões refogados ao alho e cebola',
-      'Arroz cremoso com manjericão',
-      'Finalização com molho branco',
+      'Seleção especial de rótulos premium',
+      'Harmonização com os pratos da casa',
+      'Valores a partir de R$ 89,90',
     ],
-    conditions: [
-      'Promoção sujeita à disponibilidade da cozinha',
-      'Válida para consumo no restaurante',
-      'Não cumulativa com outras ofertas',
-    ],
-    delivery: 'Entregue à mesa em travessa quente, pronto para compartilhar.',
-    alt: 'Promoção Camarão Coco Bambu por R$ 99,90',
-    fit: 'contain',
+    delivery: 'Servido à mesa.',
+    alt: 'Seleção especial Vinhos Premium: rótulos selecionados para harmonizar com os melhores pratos da casa. A partir de R$ 89,90.',
+    fit: 'cover',
   },
   {
-    id: 'vezz-accessibility',
-    image: slideVezzBanner,
-    alt: 'Vezz, mobilidade para você ir mais longe',
-    action: 'vezz',
-    fit: 'contain',
+    id: 'combinado-oriental',
+    image: bannerCombinadoOriental,
+    title: 'Combinado Oriental',
+    subtitle: 'Seleção especial de sushis e sashimis com ingredientes frescos. Por R$ 129,90.',
+    targetType: 'promotion',
+    includes: [
+      'Seleção especial de sushis e sashimis',
+      'Ingredientes frescos',
+    ],
+    delivery: 'Servido à mesa.',
+    alt: 'Especial da casa Combinado Oriental: seleção especial de sushis e sashimis com ingredientes frescos. R$ 129,90.',
+    fit: 'cover',
   },
   {
-    id: 'camarao-scampi',
-    image: promoScampi,
-    title: 'Lançamento Camarão Scampi',
-    subtitle: 'Camarões salteados com toque cítrico e molho da casa.',
+    id: 'salmao-grelhado',
+    image: bannerSalmaoGrelhado,
+    title: 'Salmão Grelhado',
+    subtitle: 'Salmão grelhado ao molho teriyaki, servido com arroz de legumes e batatas rústicas. Por R$ 89,90.',
     targetType: 'promotion',
-    productId: 'camarao-jurere',
     includes: [
-      'Camarões puxados no azeite',
-      'Molho aromático com ervas',
-      'Acompanhamento sugerido pela cozinha',
+      'Salmão grelhado ao molho teriyaki',
+      'Arroz de legumes',
+      'Batatas rústicas',
     ],
-    conditions: [
-      'Disponível enquanto durar o estoque',
-      'Consulte o garçom sobre substituições',
-      'Imagem meramente ilustrativa',
-    ],
-    delivery: 'O prato chega montado para manter textura, aroma e temperatura.',
-    alt: 'Lançamento Camarão Scampi Coco Bambu',
-    fit: 'contain',
+    delivery: 'Servido à mesa.',
+    alt: 'Especial da casa Salmão Grelhado: salmão grelhado ao molho teriyaki, servido com arroz de legumes e batatas rústicas. R$ 89,90.',
+    fit: 'cover',
   },
 ]
 
@@ -427,13 +452,21 @@ const baseProducts = [
 ]
 
 const appAssetRegistry = {
+  'profile.cover.pedra-do-sol': { src: pedraDoSolCover, tokens: ['capa-pedra-do-sol'] },
+  'profile.logo.pedra-do-sol': { src: pedraDoSolLogo, tokens: ['logo-pedra-do-sol'] },
   'profile.cover.coco-bambu': { src: cocoBackground, tokens: ['cocobambu_fundo'] },
   'profile.logo.coco-bambu': { src: cocoLogo, tokens: ['logo-coco-bambu', 'logo coco bambu'] },
+  'promo.vinhos-premium': { src: bannerVinhosPremium, tokens: ['banner-vinhos-premium'] },
+  'promo.combinado-oriental': { src: bannerCombinadoOriental, tokens: ['banner-combinado-oriental'] },
+  'promo.salmao-grelhado': { src: bannerSalmaoGrelhado, tokens: ['banner-salmao-grelhado'] },
   'promo.coco-brasil': { src: promoShrimp, tokens: ['slide_0', 'slide-0'] },
   'promo.scampi': { src: promoScampi, tokens: ['slide_2', 'slide-2'] },
   'promo.vezz': { src: slideVezzBanner, tokens: ['slide-vezz-banner'] },
   'category.image.bebidas': { src: categoriaBebidas, tokens: ['img bebidas@3x', 'img bebidas'] },
   'category.image.carnes': { src: categoriaCarnes, tokens: ['img carne@3x', 'img carne'] },
+  'category.image.entradas-pedra-do-sol': { src: categoriaEntradasPedraDoSol, tokens: ['categoria-entradas-pedra-do-sol'] },
+  'category.image.saladas-pedra-do-sol': { src: categoriaSaladasPedraDoSol, tokens: ['categoria-saladas-pedra-do-sol'] },
+  'category.image.frutos-do-mar-pedra-do-sol': { src: categoriaFrutosDoMarPedraDoSol, tokens: ['categoria-frutos-do-mar-pedra-do-sol'] },
   'category.image.entradas': { src: categoriaEntradas, tokens: ['img entradas@3x', 'img entradas'] },
   'category.image.frangos': { src: categoriaFrangos, tokens: ['img frango@3x', 'img frango'] },
   'category.image.frutos-do-mar': { src: categoriaFrutosDoMar, tokens: ['img frutos do mar@3x', 'img frutos do mar'] },
@@ -472,6 +505,9 @@ function App() {
   })
   const [analyticsSession, setAnalyticsSession] = useState(() => getAnalyticsSession(initialTable))
   const [screen, setScreen] = useState(() => initialScreen)
+  const [launchPromoOpen, setLaunchPromoOpen] = useState(
+    () => isPublicMenuScreen(initialScreen) && launchPromoSlides.length > 0,
+  )
   const [menuMode, setMenuMode] = useState('padrao')
   const [activeCategory, setActiveCategory] = useState(() => getCategoryFromHash() || 'frutos-do-mar')
   const [menuCategorySelected, setMenuCategorySelected] = useState(false)
@@ -568,6 +604,8 @@ function App() {
     isPublicMenuScreen(screen)
     && menuLoadState.slug === activeMenuSlug
     && (menuLoadState.loading || menuLoadState.failed)
+  const launchPromoVisible = launchPromoOpen && !menuPlaceholderActive && isPublicMenuScreen(screen)
+  const closeLaunchPromo = useCallback(() => setLaunchPromoOpen(false), [])
 
   const trackEvent = useCallback(
     (eventName, payload = {}) => {
@@ -845,12 +883,16 @@ function App() {
   }, [])
 
   useEffect(() => {
+    // Enquanto as promoções de abertura estão na tela, o foco fica no botão de fechar.
+    // Ao fechar, este efeito roda de novo e devolve o foco ao título da tela.
+    if (launchPromoVisible) return undefined
+
     const frameId = window.requestAnimationFrame(() => {
       document.querySelector('[data-screen-title="true"]')?.focus()
     })
 
     return () => window.cancelAnimationFrame(frameId)
-  }, [screen, selectedProductId])
+  }, [screen, selectedProductId, launchPromoVisible])
 
   useEffect(() => {
     const toastTimers = toastTimersRef.current
@@ -1822,12 +1864,156 @@ function App() {
           />
         )}
 
+        {launchPromoVisible && (
+          <LaunchPromoOverlay slides={launchPromoSlides} onClose={closeLaunchPromo} />
+        )}
+
         <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
           {readerStatus}
         </p>
         <ToastStack toasts={toasts} onDismiss={removeToast} />
       </div>
     </main>
+  )
+}
+
+function LaunchPromoOverlay({ slides, onClose }) {
+  const dialogRef = useRef(null)
+  const trackRef = useRef(null)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const slideCount = slides.length
+
+  // Foca o próprio pop-up (o leitor de tela anuncia "Promoções do dia") sem
+  // desenhar o anel de foco no botão X para quem usa toque.
+  useEffect(() => {
+    dialogRef.current?.focus({ preventScroll: true })
+  }, [])
+
+  function goToSlide(index) {
+    const track = trackRef.current
+    if (!track || !slideCount) return
+
+    const nextIndex = Math.max(0, Math.min(slideCount - 1, index))
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
+    track.scrollTo({ left: nextIndex * track.clientWidth, behavior: reduceMotion ? 'auto' : 'smooth' })
+  }
+
+  function handleTrackScroll(event) {
+    const track = event.currentTarget
+    if (!track.clientWidth) return
+
+    const index = Math.round(track.scrollLeft / track.clientWidth)
+    setActiveIndex(Math.max(0, Math.min(slideCount - 1, index)))
+  }
+
+  function handleKeyDown(event) {
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      onClose()
+      return
+    }
+
+    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+      event.preventDefault()
+      goToSlide(activeIndex + (event.key === 'ArrowRight' ? 1 : -1))
+      return
+    }
+
+    // Mantém o Tab dentro do pop-up enquanto ele estiver aberto.
+    if (event.key === 'Tab') {
+      const focusable = dialogRef.current?.querySelectorAll('button:not([disabled])')
+      if (!focusable?.length) return
+
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      const current = document.activeElement
+
+      if (event.shiftKey && (current === first || current === dialogRef.current)) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && current === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+  }
+
+  if (!slideCount) return null
+
+  return (
+    <div
+      ref={dialogRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Promoções do dia"
+      tabIndex={-1}
+      onKeyDown={handleKeyDown}
+      className="launch-promo absolute inset-0 z-[200] overflow-hidden bg-[#1a0a06] outline-none"
+    >
+      {/* Cada arte ocupa a tela inteira do celular (object-cover). */}
+      <div
+        ref={trackRef}
+        onScroll={handleTrackScroll}
+        className="launch-promo-track flex h-full w-full snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain"
+      >
+        {slides.map((slide) => (
+          <img
+            key={slide.id}
+            src={slide.image}
+            alt={slide.alt}
+            loading="eager"
+            decoding="async"
+            draggable="false"
+            className="h-full w-full shrink-0 snap-center snap-always select-none object-cover object-center"
+          />
+        ))}
+      </div>
+
+      {/* Área de toque de 44px; o círculo visível tem 32px. */}
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Fechar promoções e abrir o cardápio"
+        className="group absolute right-1.5 top-[calc(6px+env(safe-area-inset-top))] z-10 grid size-11 place-items-center rounded-full outline-none"
+      >
+        <span
+          aria-hidden="true"
+          className="grid size-8 place-items-center rounded-full bg-black/45 text-white ring-1 ring-white/35 backdrop-blur-sm transition group-hover:bg-black/65 group-active:scale-90 group-focus-visible:outline group-focus-visible:outline-2 group-focus-visible:outline-offset-2 group-focus-visible:outline-white"
+        >
+          <X size={16} strokeWidth={2.6} />
+        </span>
+      </button>
+
+      {slideCount > 1 && (
+        <div
+          className="absolute inset-x-0 bottom-[calc(10px+env(safe-area-inset-bottom))] z-10 flex items-center justify-center gap-0.5"
+          aria-label="Navegar entre promoções"
+        >
+          {slides.map((slide, index) => {
+            const isActive = index === activeIndex
+
+            return (
+              <button
+                type="button"
+                key={slide.id}
+                onClick={() => goToSlide(index)}
+                aria-label={`Ver promoção ${index + 1} de ${slideCount}`}
+                aria-current={isActive ? 'true' : undefined}
+                className="grid h-7 min-w-7 place-items-center px-1"
+              >
+                <span
+                  aria-hidden="true"
+                  className={`block h-2 rounded-full shadow-[0_0_6px_rgba(0,0,0,0.45)] transition-all duration-300 ${
+                    isActive ? 'w-6 bg-white' : 'w-2 bg-white/55'
+                  }`}
+                />
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -2058,16 +2244,35 @@ function CategoryDishCard({ product, onOpen }) {
 }
 
 function TopPhotoBar({
-  backgroundImage = cocoBackground,
+  backgroundImage = defaultRestaurantProfile.cover,
   onBack,
   onOpenSettings,
   trailingIcon = 'settings',
   trailingActive = false,
   showBack = true,
+  variant = 'default',
 }) {
+  if (variant === 'home') {
+    return (
+      <div className="relative h-[175px] overflow-hidden">
+        {/* Alinhada pelo topo: a base da foto fica escondida atrás do conteúdo branco. */}
+        <ImageWithFallback src={backgroundImage} fallbackSrc={defaultRestaurantProfile.cover} alt="" className="h-full w-full object-cover object-top" draggable="false" />
+        <div className="absolute inset-0 bg-black/10" />
+        <button
+          type="button"
+          onClick={onOpenSettings}
+          aria-label="Configurações"
+          className="absolute right-5 top-[31px] grid size-[30px] place-items-center rounded-full bg-white/40 text-white backdrop-blur-[2px] transition active:scale-95"
+        >
+          <Settings size={18} strokeWidth={2} />
+        </button>
+      </div>
+    )
+  }
+
   return (
     <div className="relative h-[144px] overflow-hidden">
-      <ImageWithFallback src={backgroundImage} fallbackSrc={cocoBackground} alt="" className="h-full w-full object-cover" draggable="false" />
+      <ImageWithFallback src={backgroundImage} fallbackSrc={defaultRestaurantProfile.cover} alt="" className="h-full w-full object-cover" draggable="false" />
       <div className="absolute inset-0 bg-black/10" />
       {showBack && (
         <button
@@ -2138,7 +2343,6 @@ function MenuScreen({
   voiceCommandListening,
 }) {
   const [promoIndex, setPromoIndex] = useState(0)
-  const [productLayout, setProductLayout] = useState('lista')
   const [menuSheetRaised, setMenuSheetRaised] = useState(false)
   const menuScrollRef = useRef(null)
   const categoryStripRef = useRef(null)
@@ -2216,33 +2420,34 @@ function MenuScreen({
           onBack={onBack}
           onOpenSettings={onOpenSettings}
           showBack={false}
+          variant="home"
         />
       </div>
 
       <ImageWithFallback
         src={restaurantProfile.logo}
-        fallbackSrc={cocoLogo}
+        fallbackSrc={defaultRestaurantProfile.logo}
         alt={restaurantProfile.name}
         loading="eager"
         decoding="sync"
-        className={`brand-logo-frame pointer-events-none absolute left-1/2 top-[50px] size-[96px] -translate-x-1/2 rounded-full bg-[var(--brand-primary)] object-cover transition-all duration-500 ease-out ${
+        className={`pointer-events-none absolute left-1/2 top-[93px] size-[82px] -translate-x-1/2 rounded-full border-2 border-[var(--brand-accent)] bg-[var(--brand-primary)] object-cover transition-all duration-500 ease-out ${
           menuSheetRaised ? 'z-0 -translate-y-5 opacity-0 scale-95' : 'z-30 translate-y-0 opacity-100 scale-100'
         }`}
         draggable="false"
       />
 
-      <div className="relative z-20 -mt-8 rounded-t-[34px] bg-[var(--brand-surface)] px-8 pb-4 pt-[48px] shadow-[0_-18px_42px_rgba(67,22,15,0.12)]">
-        <div className="text-center">
-          <h1 id="menu-title" data-screen-title="true" tabIndex={-1} className="font-anton text-[25px] font-normal uppercase tracking-[0.02em] outline-none">
+      <div className="relative z-20 -mt-5 rounded-t-[16px] bg-[var(--brand-surface)] pb-4 pt-[29px] shadow-[0_-12px_32px_rgba(67,22,15,0.10)]">
+        <div className="px-6 text-center">
+          <h1 id="menu-title" data-screen-title="true" tabIndex={-1} className="font-anton text-[20px] font-normal uppercase leading-none tracking-[0.02em] text-[var(--brand-primary)] outline-none">
             {restaurantProfile.name}
           </h1>
-          <p className="mt-0.5 flex items-center justify-center gap-1 text-[11px] text-[#4b231b]">
-            <MapPin size={12} fill="#111" />
+          <p className="mt-[7px] flex items-center justify-center gap-1 text-[11px] leading-none text-[var(--brand-primary)]">
+            <MapPin size={12} strokeWidth={2} fill="currentColor" className="shrink-0 [&_circle]:fill-white" aria-hidden="true" />
             {restaurantProfile.location}
           </p>
         </div>
 
-        <div className="-mx-8 mt-3">
+        <div className="mt-[6px]">
           <PromoCarousel
             activeIndex={safePromoIndex}
             slides={promoItems}
@@ -2252,13 +2457,14 @@ function MenuScreen({
           />
         </div>
 
-        <div className="relative mt-2.5 h-10 overflow-hidden rounded-full border border-[#e8e3e1] bg-white">
-          <Search size={18} strokeWidth={1.6} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#a99d99]" />
+        <div className="relative mx-4 mt-[11px] h-[42px] overflow-hidden rounded-full bg-[#eeeeee]">
+          <Search size={18} strokeWidth={2} className="pointer-events-none absolute left-[13px] top-1/2 -translate-y-1/2 text-[#aaaaab]" />
           <input
             value={searchQuery}
             onChange={(event) => onSearchChange(event.target.value)}
-            placeholder="Buscar pratos"
-            className="h-full w-full min-w-0 bg-transparent pl-11 pr-20 text-[14px] font-normal text-[#43160f] outline-none placeholder:font-normal placeholder:text-[#a99d99]"
+            placeholder="Buscar pratos..."
+            aria-label="Buscar pratos"
+            className="h-full w-full min-w-0 bg-transparent pl-[41px] pr-20 text-[14px] font-normal text-[#43160f] outline-none placeholder:font-normal placeholder:text-[#a5a5a5]"
           />
           {isSearching && (
             <button
@@ -2275,38 +2481,37 @@ function MenuScreen({
             onClick={onStartVoiceCommand}
             aria-label="Buscar por voz"
             aria-pressed={voiceCommandListening}
-            className={`absolute right-3 top-1/2 grid size-7 -translate-y-1/2 place-items-center overflow-hidden rounded-full transition ${
-              voiceCommandListening ? 'bg-[var(--brand-primary)] text-white shadow-sm' : 'text-[#bdb8b5]'
+            className={`absolute right-2.5 top-1/2 grid size-7 -translate-y-1/2 place-items-center overflow-hidden rounded-full transition ${
+              voiceCommandListening ? 'bg-[var(--brand-primary)] text-white shadow-sm' : 'text-[#aaaaab]'
             }`}
           >
-            <Mic size={18} strokeWidth={1.6} />
+            <Mic size={20} strokeWidth={2} className="[&_rect]:fill-current" />
           </button>
         </div>
 
         {!isSearching && (
           <>
-            <div className="mt-2.5 flex items-center justify-between">
-              <h2 className="-ml-5 text-[15px] font-medium">CATEGORIAS</h2>
+            <div className="mt-[20px] flex items-center justify-between pl-4 pr-3">
+              <h2 className="text-[14px] font-medium leading-none">CATEGORIAS</h2>
               <button
                 type="button"
                 onClick={onOpenCategories}
-                className="-mr-7 inline-flex items-center gap-1 text-[12px] font-normal text-[#8f6f64] transition hover:text-[var(--brand-primary)]"
+                className="inline-flex items-center gap-0.5 text-[11px] font-normal leading-none text-[#8d7571] transition hover:text-[var(--brand-primary)]"
               >
                 Ver todos
-                <ArrowRight size={15} strokeWidth={1.6} aria-hidden="true" />
+                <ChevronRight size={12} strokeWidth={1.8} aria-hidden="true" />
               </button>
             </div>
 
             <div
               ref={categoryStripRef}
-              className="-mx-8 -mt-2 overflow-x-auto overflow-y-hidden pt-3 [scrollbar-width:none] [touch-action:pan-x_pan-y_pinch-zoom]"
+              className="mt-[10px] overflow-x-auto overflow-y-hidden [scrollbar-width:none] [touch-action:pan-x_pan-y_pinch-zoom]"
             >
-              <div className="flex w-max translate-y-1.5 gap-2 px-3 pb-1">
+              <div className="flex w-max gap-2.5 px-4 pb-1">
                 {categoryItems.map((category) => (
                   <CategoryPreviewCard
                     key={category.id}
                     category={category}
-                    active={menuCategorySelected && category.id === activeCategory}
                     onClick={() => onCategoryChange(category.id)}
                   />
                 ))}
@@ -2316,7 +2521,7 @@ function MenuScreen({
         )}
 
         {isSearching && (
-          <div className="mt-2.5 rounded-lg bg-[#f8f3ee] px-3 py-2 text-xs font-bold leading-4 text-[#8b6d66]">
+          <div className="mx-4 mt-3 rounded-lg bg-[#f8f3ee] px-3 py-2 text-xs font-bold leading-4 text-[#8b6d66]">
             {productSearch.mode === 'similar'
               ? `Não encontramos exatamente "${searchQuery.trim()}". Mostrando similares por ingredientes, categoria e tags.`
               : productSearch.mode === 'none'
@@ -2325,39 +2530,26 @@ function MenuScreen({
           </div>
         )}
 
-        <div className="mt-1 flex items-center justify-between">
-          <h2 className="-ml-5 text-[15px] font-medium">{menuSectionTitle}</h2>
-          <div className="-mr-6">
-            <ViewModeToggle value={productLayout} onChange={setProductLayout} />
-          </div>
-        </div>
+        <h2 className={`${isSearching ? 'mt-5' : 'mt-[8px]'} px-[14px] text-[14px] font-medium leading-none`}>{menuSectionTitle}</h2>
 
-        <div className={productLayout === 'grade' ? 'relative left-1/2 mt-2 grid w-[calc(100%+64px)] -translate-x-1/2 grid-cols-2 gap-2.5 px-2' : 'relative left-1/2 mt-2 w-[calc(100%+64px)] -translate-x-1/2 space-y-2.5 px-2'}>
+        <div className="mx-3 mt-[8px] space-y-2.5">
           {primaryProducts.map((product) => (
-            productLayout === 'grade' ? (
-              <MenuProductGridCard key={product.id} product={product} onOpen={() => onOpenProduct(product)} />
-            ) : (
-              <MenuProductCard key={product.id} product={product} onOpen={() => onOpenProduct(product)} />
-            )
+            <MenuProductCard key={product.id} product={product} onOpen={() => onOpenProduct(product)} />
           ))}
         </div>
 
         {!isSearching && dailyProducts.length > 0 && (
           <>
-            <div className="mt-4 flex items-center justify-between">
-              <h2 className="text-[15px] font-medium">PRATOS DO DIA</h2>
-              <span className="text-[11px] font-semibold text-[#a98272]">
+            <div className="mt-5 flex items-center justify-between px-[14px]">
+              <h2 className="text-[14px] font-medium leading-none">PRATOS DO DIA</h2>
+              <span className="text-[11px] font-semibold leading-none text-[#a98272]">
                 {menuCategorySelected ? selectedCategory?.label ?? 'Categoria' : 'Seleção da casa'}
               </span>
             </div>
 
-            <div className={productLayout === 'grade' ? 'relative left-1/2 mt-2 grid w-[calc(100%+64px)] -translate-x-1/2 grid-cols-2 gap-2.5 px-2' : 'relative left-1/2 mt-2 w-[calc(100%+64px)] -translate-x-1/2 space-y-2.5 px-2'}>
+            <div className="mx-3 mt-[8px] space-y-2.5">
               {dailyProducts.map((product) => (
-                productLayout === 'grade' ? (
-                  <MenuProductGridCard key={product.id} product={product} onOpen={() => onOpenProduct(product)} />
-                ) : (
-                  <MenuProductCard key={product.id} product={product} onOpen={() => onOpenProduct(product)} />
-                )
+                <MenuProductCard key={product.id} product={product} onOpen={() => onOpenProduct(product)} />
               ))}
             </div>
           </>
@@ -2365,20 +2557,16 @@ function MenuScreen({
 
         {!isSearching && completeMenuProducts.length > 0 && (
           <>
-            <div className="mt-4 flex items-center justify-between">
-              <h2 className="text-[15px] font-medium">CARDAPIO COMPLETO</h2>
-              <span className="text-[11px] font-semibold text-[#a98272]">
+            <div className="mt-5 flex items-center justify-between px-[14px]">
+              <h2 className="text-[14px] font-medium leading-none">CARDÁPIO COMPLETO</h2>
+              <span className="text-[11px] font-semibold leading-none text-[#a98272]">
                 {completeMenuProducts.length} itens
               </span>
             </div>
 
-            <div className={productLayout === 'grade' ? 'relative left-1/2 mt-2 grid w-[calc(100%+64px)] -translate-x-1/2 grid-cols-2 gap-2.5 px-2' : 'relative left-1/2 mt-2 w-[calc(100%+64px)] -translate-x-1/2 space-y-2.5 px-2'}>
+            <div className="mx-3 mt-[8px] space-y-2.5">
               {completeMenuProducts.map((product) => (
-                productLayout === 'grade' ? (
-                  <MenuProductGridCard key={product.id} product={product} onOpen={() => onOpenProduct(product)} />
-                ) : (
-                  <MenuProductCard key={product.id} product={product} onOpen={() => onOpenProduct(product)} />
-                )
+                <MenuProductCard key={product.id} product={product} onOpen={() => onOpenProduct(product)} />
               ))}
             </div>
           </>
@@ -2392,13 +2580,23 @@ function MenuScreen({
   )
 }
 
+// Card central do carrossel: 325 px numa tela de 380 px (~85% da largura).
+function getPromoSlideWidth(containerWidth) {
+  return Math.round(containerWidth * (325 / 380))
+}
+
 function PromoCarousel({ activeIndex, slides = promoSlides, onSelect, onOpenPromo, onOpenVezz }) {
   const carouselRef = useRef(null)
   const touchStartRef = useRef(null)
   const swipeMovedRef = useRef(false)
-  const [slideWidth, setSlideWidth] = useState(316)
+  const [slideWidth, setSlideWidth] = useState(() => getPromoSlideWidth(Math.min(window.innerWidth || 380, 430)))
   const [dragOffset, setDragOffset] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
+  // O card central ocupa ~85% da largura e mostra a arte inteira (316 × 118);
+  // os vizinhos ficam levemente menores, aparecendo nas laterais.
+  const slideHeight = Math.round(slideWidth / promoCardAspectRatio)
+  const sideSlideScale = 0.97
+  const slideStep = slideWidth * ((1 + sideSlideScale) / 2) + 10
   const dragPreviewDirection = dragOffset < slideWidth * -0.28
     ? 1
     : dragOffset > slideWidth * 0.28
@@ -2407,13 +2605,16 @@ function PromoCarousel({ activeIndex, slides = promoSlides, onSelect, onOpenProm
   const visualActiveIndex = slides.length
     ? (activeIndex + dragPreviewDirection + slides.length) % slides.length
     : 0
+  const hasSlides = slides.length > 0
 
+  // Mede de novo quando os banners passam a existir: se a lista chegar vazia
+  // e for preenchida depois, o carrossel só é montado nesse momento.
   useEffect(() => {
     const carousel = carouselRef.current
     if (!carousel) return undefined
 
     function updateSlideWidth(width) {
-      setSlideWidth(Math.min(316, Math.max(286, Math.round(width * 0.735))))
+      setSlideWidth(getPromoSlideWidth(width))
     }
 
     updateSlideWidth(carousel.getBoundingClientRect().width)
@@ -2425,7 +2626,7 @@ function PromoCarousel({ activeIndex, slides = promoSlides, onSelect, onOpenProm
     observer.observe(carousel)
 
     return () => observer.disconnect()
-  }, [])
+  }, [hasSlides])
 
   function selectRelativeSlide(direction) {
     onSelect((activeIndex + direction + slides.length) % slides.length)
@@ -2526,7 +2727,8 @@ function PromoCarousel({ activeIndex, slides = promoSlides, onSelect, onOpenProm
     <div className="w-full">
       <div
         ref={carouselRef}
-        className="relative h-[96px] w-full touch-pan-y overflow-hidden py-[5px]"
+        className="relative w-full touch-pan-y overflow-hidden py-[5px]"
+        style={{ height: `${slideHeight + 10}px` }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -2534,10 +2736,10 @@ function PromoCarousel({ activeIndex, slides = promoSlides, onSelect, onOpenProm
       >
         {slides.map((slide, index) => {
           const offset = getSlideOffset(index)
-          const slidePosition = offset + dragOffset / slideWidth
+          const slidePosition = offset + dragOffset / slideStep
           const distanceFromCenter = Math.abs(slidePosition)
           const isActive = offset === 0
-          const slideScale = 1 - Math.min(distanceFromCenter, 1) * 0.08
+          const slideScale = 1 - Math.min(distanceFromCenter, 1) * (1 - sideSlideScale)
 
           return (
             <button
@@ -2546,14 +2748,15 @@ function PromoCarousel({ activeIndex, slides = promoSlides, onSelect, onOpenProm
               onClick={() => handleSlideClick(slide, index)}
               aria-label={slide.action === 'vezz' ? 'Abrir Vezz' : slide.alt}
               aria-current={isActive}
-              className={`absolute left-1/2 top-[5px] grid h-[86px] place-items-center overflow-hidden rounded-lg shadow-[0_10px_24px_rgba(67,22,15,0.10)] ${
+              className={`absolute left-1/2 top-[5px] grid place-items-center overflow-hidden rounded-lg shadow-[0_4px_12px_rgba(67,22,15,0.10)] ${
                 isDragging ? 'transition-none' : 'transition-all duration-700 ease-out'
               } ${
                 slide.id === protectedPromoSlideId ? 'bg-[#15c8d0]' : 'bg-[#4b160e]'
               }`}
               style={{
                 width: `${slideWidth}px`,
-                transform: `translateX(calc(-50% + ${offset * slideWidth + dragOffset}px)) scale(${slideScale})`,
+                height: `${slideHeight}px`,
+                transform: `translateX(calc(-50% + ${offset * slideStep + dragOffset}px)) scale(${slideScale})`,
                 opacity: distanceFromCenter > 1.35 ? 0 : 1,
                 zIndex: Math.round((2 - Math.min(distanceFromCenter, 2)) * 10),
               }}
@@ -2570,7 +2773,7 @@ function PromoCarousel({ activeIndex, slides = promoSlides, onSelect, onOpenProm
         })}
       </div>
 
-      <div className="mt-1 flex items-center justify-center gap-1.5" role="tablist" aria-label="Promoções">
+      <div className="mt-[8px] flex items-center justify-center" role="tablist" aria-label="Promoções">
         {slides.map((slide, index) => (
           <button
             type="button"
@@ -2580,12 +2783,14 @@ function PromoCarousel({ activeIndex, slides = promoSlides, onSelect, onOpenProm
             aria-label={`Mostrar promoção ${index + 1} de ${slides.length}`}
             aria-selected={index === visualActiveIndex}
             aria-current={index === visualActiveIndex ? 'true' : undefined}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
-              index === visualActiveIndex
-                ? 'w-3.5 bg-slate-600'
-                : 'w-1.5 bg-slate-300 hover:bg-slate-400'
-            }`}
+            className="grid h-4 w-[10px] place-items-center"
           >
+            <span
+              aria-hidden="true"
+              className={`block size-[6px] rounded-full transition-colors duration-300 ${
+                index === visualActiveIndex ? 'bg-[#919191]' : 'bg-[#d9d9d9]'
+              }`}
+            />
             <span className="sr-only">{slide.alt || `Promoção ${index + 1}`}</span>
           </button>
         ))}
@@ -2594,20 +2799,16 @@ function PromoCarousel({ activeIndex, slides = promoSlides, onSelect, onOpenProm
   )
 }
 
-function CategoryPreviewCard({ category, active, onClick }) {
+// O card só abre a página da categoria: não fica marcado como selecionado.
+function CategoryPreviewCard({ category, onClick }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-pressed={active}
-      className="min-h-[112px] w-[calc((min(100vw,430px)-48px)/3)] flex-none text-center"
+      className="w-[calc((min(100vw,430px)-32px)/3.4)] flex-none text-center [-webkit-tap-highlight-color:transparent]"
     >
-      <span
-        className={`brand-photo-frame relative block h-[84px] rounded-md bg-[#4b160e] transition ${
-          active ? 'ring-2 ring-[#4b160e] ring-offset-2 ring-offset-white' : ''
-        }`}
-      >
-        <span className="block size-full overflow-hidden rounded-[4px]">
+      <span className="relative block aspect-[116/83] rounded-[6px] bg-[#4b160e]">
+        <span className="block size-full overflow-hidden rounded-[6px]">
           <ImageWithFallback
             src={category.image}
             fallbackSrc={fallbackImages[category.id] || categoriaEntradas}
@@ -2624,45 +2825,14 @@ function CategoryPreviewCard({ category, active, onClick }) {
           alt=""
           loading="eager"
           decoding="sync"
-          className="absolute bottom-[-16px] left-1/2 z-10 size-[42px] -translate-x-1/2 rounded-full object-cover drop-shadow-md"
+          className="absolute bottom-[-10px] left-1/2 z-10 size-[28px] -translate-x-1/2 rounded-full object-cover drop-shadow-sm"
           draggable="false"
         />
       </span>
-      <span className="font-montserrat mt-5 flex h-7 items-start justify-center px-1 text-center text-[11px] font-semibold leading-[1.2] tracking-[0.01em]">
+      <span className="font-montserrat mt-[13px] flex h-[26px] items-start justify-center text-center text-[11px] font-bold leading-[13px]">
         {category.label.toUpperCase()}
       </span>
     </button>
-  )
-}
-
-function ViewModeToggle({ value, onChange }) {
-  const options = [
-    { id: 'lista', label: 'Visualizar em lista', icon: List },
-    { id: 'grade', label: 'Visualizar em grade', icon: LayoutGrid },
-  ]
-
-  return (
-    <div className="flex items-center gap-1" aria-label="Modo de visualização">
-      {options.map(({ id, label, icon: Icon }) => {
-        const active = value === id
-
-        return (
-          <button
-            type="button"
-            key={id}
-            onClick={() => onChange(id)}
-            aria-label={label}
-            aria-pressed={active}
-            title={label}
-            className={`grid size-8 place-items-center rounded-full transition-colors duration-200 ${
-              active ? 'bg-[var(--brand-primary)] text-white' : 'bg-transparent text-[#ad9d97] hover:bg-[#f5f1ef] hover:text-[var(--brand-primary)]'
-            }`}
-          >
-            <Icon size={16} strokeWidth={active ? 1.9 : 1.6} />
-          </button>
-        )
-      })}
-    </div>
   )
 }
 
@@ -2672,60 +2842,29 @@ function MenuProductCard({ product, onOpen }) {
       type="button"
       onClick={onOpen}
       aria-label={buildProductAriaLabel(product)}
-      className="grid h-[116px] w-full grid-cols-[1fr_130px] gap-3 overflow-hidden rounded-lg bg-[#f0f0f0] p-3 text-left"
+      className="grid h-[100px] w-full grid-cols-[1fr_113px] gap-3 overflow-hidden rounded-[10px] bg-[#f0f0f0] py-[10px] pl-3 pr-[10px] text-left transition active:scale-[0.99]"
     >
-      <span className="grid min-w-0 grid-rows-[auto_1fr_auto] self-stretch overflow-hidden">
-        <span className="block truncate text-[13px] font-bold leading-tight" title={product.name}>
+      <span className="grid min-w-0 grid-rows-[auto_1fr_auto] overflow-hidden">
+        <span className="block truncate text-[12px] font-extrabold leading-4" title={product.name}>
           {product.name.toUpperCase()}
         </span>
-        <span className="line-clamp-3 block max-h-[51px] self-center overflow-hidden text-[12.5px] font-normal leading-[17px]">
+        <span className="mt-1 line-clamp-3 block self-start overflow-hidden text-[11.5px] font-normal leading-[15px] text-[#4a231b]">
           {product.description}
         </span>
-        <span className="block text-[15px] font-bold">{formatCurrency(product.price)}</span>
+        <span className="block text-[13px] font-extrabold leading-4">{formatCurrency(product.price)}</span>
       </span>
-      <span className="brand-photo-frame relative block h-[96px] self-center overflow-hidden rounded-lg bg-[#4b160e]">
+      <span className="relative block h-full overflow-hidden rounded-[10px] bg-[#4b160e]">
         <ImageWithFallback
           src={product.image}
           fallbackSrc={fallbackImages[product.category] || categoriaFrutosDoMar}
           alt=""
           className={`block size-full object-cover object-center ${product.id === 'camarao-coco-brasil' ? 'scale-[1.14]' : 'scale-[1.03]'}`}
         />
-        <span className="absolute bottom-2 right-2 flex h-5 items-center justify-center gap-px whitespace-nowrap rounded-full bg-white/95 px-1.5 text-[9px] font-semibold leading-none tracking-[0.01em] text-[#4b160e] shadow-[0_2px_8px_rgba(67,22,15,0.16)]">
+        <span className="absolute bottom-[10px] right-[7px] flex h-[11px] items-center justify-center gap-px whitespace-nowrap rounded-full bg-white/90 pl-1.5 pr-1 text-[6.5px] font-bold uppercase leading-none tracking-[0.02em] text-[#421911]">
           Ver prato
-          <ArrowRight size={9} strokeWidth={1.7} aria-hidden="true" />
+          <ChevronRight size={7} strokeWidth={2.4} aria-hidden="true" />
         </span>
       </span>
-    </button>
-  )
-}
-
-function MenuProductGridCard({ product, onOpen }) {
-  return (
-    <button
-      type="button"
-      onClick={onOpen}
-      aria-label={buildProductAriaLabel(product)}
-      className="h-[236px] overflow-hidden rounded-lg bg-[#f0f0f0] p-2.5 text-left transition active:scale-[0.99]"
-    >
-      <span className="brand-photo-frame relative block h-[108px] overflow-hidden rounded-lg bg-[#4b160e]">
-        <ImageWithFallback
-          src={product.image}
-          fallbackSrc={fallbackImages[product.category] || categoriaFrutosDoMar}
-          alt=""
-          className={`block size-full object-cover object-center ${product.id === 'camarao-coco-brasil' ? 'scale-[1.14]' : 'scale-[1.03]'}`}
-        />
-        <span className="absolute bottom-2 right-2 flex h-5 items-center justify-center gap-px whitespace-nowrap rounded-full bg-white/95 px-1.5 text-[9px] font-semibold leading-none tracking-[0.01em] text-[#4b160e] shadow-[0_2px_8px_rgba(67,22,15,0.16)]">
-          Ver prato
-          <ArrowRight size={9} strokeWidth={1.7} aria-hidden="true" />
-        </span>
-      </span>
-      <span className="mt-3 block truncate text-center text-[12.5px] font-bold leading-tight" title={product.name}>
-        {product.name.toUpperCase()}
-      </span>
-      <span className="mt-1 line-clamp-3 block h-12 max-h-12 overflow-hidden text-center text-[11.5px] font-normal leading-4 text-[#5e332a]">
-        {product.description}
-      </span>
-      <span className="mt-1.5 block text-center text-[15px] font-bold">{formatCurrency(product.price)}</span>
     </button>
   )
 }
@@ -4868,7 +5007,7 @@ function AdminMenuStatsScreen({
 function AdminSpecialHeader({ title, restaurantProfile, onBack, onSettings }) {
   return (
     <header className="relative h-[128px]">
-      <ImageWithFallback src={restaurantProfile.cover} fallbackSrc={cocoBackground} alt="" className="h-[92px] w-full object-cover" draggable="false" />
+      <ImageWithFallback src={restaurantProfile.cover} fallbackSrc={defaultRestaurantProfile.cover} alt="" className="h-[92px] w-full object-cover" draggable="false" />
       <span className="absolute inset-x-0 top-0 h-[92px] bg-black/10" />
       <button
         type="button"
@@ -4888,7 +5027,7 @@ function AdminSpecialHeader({ title, restaurantProfile, onBack, onSettings }) {
       </button>
       <ImageWithFallback
         src={restaurantProfile.logo}
-        fallbackSrc={cocoLogo}
+        fallbackSrc={defaultRestaurantProfile.logo}
         alt={restaurantProfile.name}
         className="brand-logo-frame absolute left-1/2 top-[38px] size-[96px] -translate-x-1/2 rounded-full bg-[#4b160e] object-cover"
         draggable="false"
@@ -6092,12 +6231,12 @@ function AdminPromoEditScreen({ promo, products = [], onBack, onSave }) {
         <AdminImageCropDialog
           source={imageCropSource}
           title="Ajustar imagem promocional"
-          description="A área destacada corresponde ao card de 316 × 86 px. Use uma imagem de 1264 × 344 px para maior qualidade."
+          description="A área destacada corresponde ao card de 316 × 118 px. Use uma imagem de 1264 × 472 px para maior qualidade."
           confirmLabel="Usar imagem"
           aspectRatio={promoCardAspectRatio}
           workspaceAspectRatio={4 / 3}
           outputWidth={1264}
-          outputHeight={344}
+          outputHeight={472}
           quality={0.9}
           onCancel={() => setImageCropSource('')}
           onConfirm={(imageUrl) => {

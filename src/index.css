@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@500;600;700&display=swap');
 @import "tailwindcss";
 
 .font-anton {
@@ -141,6 +141,30 @@
   }
 }
 
+/* Pop-up de promoções exibido ao abrir o link do cardápio. */
+.launch-promo {
+  animation: launch-promo-fade 220ms ease-out both;
+}
+
+.launch-promo-track {
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.launch-promo-track::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes launch-promo-fade {
+  from { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .launch-promo {
+    animation: none;
+  }
+}
+
 html,
 body,
 #root {
@@ -179,7 +203,7 @@ body {
   }
 
   .app-shell {
-    position: static;
+    position: relative;
     width: min(100%, 430px);
     max-width: 430px;
     height: min(932px, calc(var(--app-viewport-height, 100vh) - 4rem));

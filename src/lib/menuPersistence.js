@@ -63,7 +63,21 @@ export async function loadMenuState(restaurantId, slug) {
 export function watchMenuState(restaurantId, slug, onChange, onError = () => {}) {
   if (!firebaseEnabled || !slug) {
     onChange(readCachedMenuState(restaurantId, slug))
-    return () => {}
+    if (typeof window === 'undefined' || !slug) return () => {}
+
+    // Local mode: admin saves in another tab arrive via the storage event.
+    const keys = new Set(getMenuStateKeys(restaurantId, slug))
+    let lastValue
+    const handleStorage = (event) => {
+      if (event.key !== null && !keys.has(event.key)) return
+      const state = readCachedMenuState(restaurantId, slug)
+      const value = JSON.stringify(state ? { ...state, clientUpdatedAt: undefined } : null)
+      if (value === lastValue) return
+      lastValue = value
+      onChange(state)
+    }
+    window.addEventListener('storage', handleStorage)
+    return () => window.removeEventListener('storage', handleStorage)
   }
 
   const key = getMenuStateKey(restaurantId, slug)
