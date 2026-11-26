@@ -12,6 +12,7 @@ screenshot-*.png
 .env
 .env.*
 !.env.example
+!.env.production
 
 playwright-report/
 test-results/
